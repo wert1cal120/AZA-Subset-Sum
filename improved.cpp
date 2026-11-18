@@ -1,14 +1,6 @@
 #include "subset_sum.hpp"
 
-static int array_sum(std::vector<int> array) {
-    int sum = 0;
-    for (int i = 0; i < array.size(); i++) {
-        sum += array[i];
-    }
-    return sum;
-};
-
-NodeTree* subset_sum_improved(const std::vector<int>& array, NodeTree* root, NodeTree* parent, int target, int index, int value, int& recursion_calls, NodeTree* &found,  bool& time_out, steady_clock::time_point deadline) {
+NodeTree* subset_sum_improved(const std::vector<int>& array, const std::vector<int>& array_sums, NodeTree* root, NodeTree* parent, int target, int index, int value, int& recursion_calls, NodeTree* &found,  bool& time_out, steady_clock::time_point deadline) {
 
     recursion_calls++;
 
@@ -37,13 +29,13 @@ NodeTree* subset_sum_improved(const std::vector<int>& array, NodeTree* root, Nod
         return root;
     }
 
-    if (index < array.size() && root->sum + array_sum(std::vector<int>(array.begin() + index, array.end())) >= target) {
+    if (index < array.size() && root->sum + array_sums[index] >= target) {
         if (found == nullptr) {
-            root->left = subset_sum_improved(array, new NodeTree(), root, target, index, 0, recursion_calls, found, time_out, deadline);
+            root->left = subset_sum_improved(array, array_sums, new NodeTree(), root, target, index, 0, recursion_calls, found, time_out, deadline);
         }
 
         if (found == nullptr) {
-            root->right = subset_sum_improved(array, new NodeTree(), root, target, index, array[index], recursion_calls, found, time_out, deadline);
+            root->right = subset_sum_improved(array, array_sums, new NodeTree(), root, target, index, array[index], recursion_calls, found, time_out, deadline);
         }
     }
 

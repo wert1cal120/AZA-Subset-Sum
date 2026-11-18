@@ -29,6 +29,16 @@ static void print_result(const NodeTree* result) {
     }
 }
 
+void delete_tree(NodeTree* root) {
+    if (root == nullptr) {
+        return;
+    }
+
+    delete_tree(root->left);
+    delete_tree(root->right);
+    delete root;
+}
+
 void run_both(int target, std::vector<int> array) {
     for (int j = 0; j < 2; j++) {
         NodeTree* root = new NodeTree();
@@ -40,7 +50,15 @@ void run_both(int target, std::vector<int> array) {
         if (j == 0) {
             subset_sum_baseline(array, root, nullptr, target, 0, 0, recursion_calls, found, time_out, start + seconds(10));
         } else {
-            subset_sum_improved(array, root, nullptr, target, 0, 0, recursion_calls, found, time_out, start + seconds(10));
+            std::vector<int> array_sums(array.size(), 0);
+            int sum = 0;
+
+            for (int x = array.size(); x > 0; x--) {
+                sum += array[x-1];
+                array_sums[x-1] = sum;
+            }
+
+            subset_sum_improved(array, array_sums, root, nullptr, target, 0, 0, recursion_calls, found, time_out, start + seconds(10));
         }
         auto elapsed = std::chrono::duration<double, std::milli>(steady_clock::now() - start);
 
@@ -51,11 +69,12 @@ void run_both(int target, std::vector<int> array) {
         } else {
             std::cout << "TIMEOUT" << std::endl;
         }
+        delete_tree(root);
     }
     std::cout << "\n";
 }
 
-//TODO: clean memory
+
 int main() {
     std::vector<int> n{10, 15, 20};
     std::srand(time(nullptr));
@@ -151,7 +170,6 @@ int main() {
                 array = {4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80};
                 run_both(target, array);
                 break;
-
             default:
                 break;
         }
