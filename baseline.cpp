@@ -2,9 +2,8 @@
 #include <chrono>
 #include "subset_sum.hpp"
 
-using namespace std::chrono;
 
-NodeTree* subset_sum_baseline(const std::vector<int>& array, NodeTree* root, NodeTree* parent, int target, int index, int value, int& recursion_calls, NodeTree* &found,  bool& time_out, steady_clock::time_point deadline) {
+NodeTree* subset_sum_baseline(const std::vector<int>& array, NodeTree* root, NodeTree* parent, int target, int index, int value, int& recursion_calls, NodeTree* &found,  bool& time_out, std::chrono::steady_clock::time_point deadline) {
 
     recursion_calls++;
 
@@ -12,7 +11,7 @@ NodeTree* subset_sum_baseline(const std::vector<int>& array, NodeTree* root, Nod
         return root;
     }
 
-    if (steady_clock::now() > deadline) {
+    if (std::chrono::steady_clock::now() > deadline) {
         time_out = true;
         return root;
     }

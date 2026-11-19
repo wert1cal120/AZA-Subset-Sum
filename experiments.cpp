@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <cstdlib>
 #include "subset_sum.hpp"
 
-using namespace std::chrono;
 
 //TODO: reverse result sequence
 static void print_result(const NodeTree* result) {
@@ -39,6 +39,7 @@ void delete_tree(NodeTree* root) {
     delete root;
 }
 
+//TODO: run 3 times and estimate median runtime
 void run_both(int target, std::vector<int> array) {
     for (int j = 0; j < 2; j++) {
         NodeTree* root = new NodeTree();
@@ -46,29 +47,32 @@ void run_both(int target, std::vector<int> array) {
         int recursion_calls = 0;
         bool time_out = false;
 
-        auto start = steady_clock::now();
+        auto start = std::chrono::steady_clock::now();
         if (j == 0) {
-            subset_sum_baseline(array, root, nullptr, target, 0, 0, recursion_calls, found, time_out, start + seconds(10));
+            std::cout << "Baseline alg:" << std::endl;
+            subset_sum_baseline(array, root, nullptr, target, 0, 0, recursion_calls, found, time_out, start + std::chrono::seconds(10));
         } else {
             std::vector<int> array_sums(array.size(), 0);
             int sum = 0;
 
-            for (int x = array.size(); x > 0; x--) {
+            for (size_t x = array.size(); x > 0; x--) {
                 sum += array[x-1];
                 array_sums[x-1] = sum;
             }
-
-            subset_sum_improved(array, array_sums, root, nullptr, target, 0, 0, recursion_calls, found, time_out, start + seconds(10));
+            std::cout << "Improved alg:" << std::endl;
+            subset_sum_improved(array, array_sums, root, nullptr, target, 0, 0, recursion_calls, found, time_out, start + std::chrono::seconds(10));
         }
-        auto elapsed = std::chrono::duration<double, std::milli>(steady_clock::now() - start);
+        auto elapsed = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start);
 
         if (!time_out) {
             print_result(found);
-            std::cout << "Recursion calls: "<< recursion_calls << std::endl;
-            std::cout << "Elapsed time: " << elapsed.count() << " ms" << std::endl;
+            std::cout << "\n";
+            std::cout << "Recursion calls: "<< recursion_calls;
+            std::cout << " | Elapsed time: " << elapsed.count() << " ms" << std::endl;
         } else {
             std::cout << "TIMEOUT" << std::endl;
         }
+        std::cout << std::endl;
         delete_tree(root);
     }
     std::cout << "\n";
@@ -77,18 +81,21 @@ void run_both(int target, std::vector<int> array) {
 
 int main() {
     std::vector<int> n{10, 15, 20};
-    std::srand(time(nullptr));
+    constexpr int seed = 58111158;
+    std::srand(seed);
+
+    std::cout << "SEED: "<< seed << std::endl;
 
     std::cout << "Experiment for n: ";
-    for (int i = 0; i < n.size(); i++) {std::cout << n[i] << " ";}
+    for (const size_t i : n) {std::cout << i << " ";}
     std::cout << "\n------------------------------\n";
 
-    for (int i = 0; i < n.size(); i++) {
-        std::cout << "N=" << n[i] << std::endl;
+    for (const size_t i : n) {
+        std::cout << "N=" << i << std::endl;
         int target;
         std::vector<int> array;
 
-        switch (n[i]) {
+        switch (i) {
             case 10:
 
                 //Fixed test
@@ -103,7 +110,7 @@ int main() {
                 std::cout << "S=" <<  target << " Array: ";
 
                 array = {};
-                for (int j = 0; j < n[i]; j++) {
+                for (int j = 0; j < i; j++) {
                     array.push_back(std::rand() % (100 - 1 + 1) + 1);
                     std::cout << array[j] << " ";
                 }
@@ -130,7 +137,7 @@ int main() {
                 std::cout << "S=" <<  target << " Array: ";
 
                 array = {};
-                for (int j = 0; j < n[i]; j++) {
+                for (int j = 0; j < i; j++) {
                     array.push_back(std::rand() % (100 - 1 + 1) + 1);
                     std::cout << array[j] << " ";
                 }
@@ -157,7 +164,7 @@ int main() {
                 std::cout << "S=" <<  target << " Array: ";
 
                 array = {};
-                for (int j = 0; j < n[i]; j++) {
+                for (int j = 0; j < i; j++) {
                     array.push_back(std::rand() % (100 - 1 + 1) + 1);
                     std::cout << array[j] << " ";
                 }
