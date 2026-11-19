@@ -33,11 +33,11 @@ NodeTree* subset_sum_improved(const std::vector<int>& array, const std::vector<i
     }
 
     if (index < array.size() && root->sum + array_sums[index] >= target) {
-        if (found == nullptr) {
+        if (found == nullptr && !time_out) {
             root->left = subset_sum_improved(array, array_sums, new NodeTree(), root, target, index, 0, recursion_calls, found, time_out, deadline);
         }
 
-        if (found == nullptr) {
+        if (found == nullptr && !time_out) {
             root->right = subset_sum_improved(array, array_sums, new NodeTree(), root, target, index, array[index], recursion_calls, found, time_out, deadline);
         }
     }

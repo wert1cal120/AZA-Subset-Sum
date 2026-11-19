@@ -29,11 +29,11 @@ NodeTree* subset_sum_baseline(const std::vector<int>& array, NodeTree* root, Nod
     }
 
     if (index < array.size()) {
-        if (found == nullptr) {
+        if (found == nullptr && !time_out) {
             root->left = subset_sum_baseline(array, new NodeTree(), root, target, index, 0, recursion_calls, found, time_out, deadline);
         }
 
-        if (found == nullptr) {
+        if (found == nullptr && !time_out) {
             root->right = subset_sum_baseline(array, new NodeTree(), root, target, index, array[index], recursion_calls, found, time_out, deadline);
         }
     }
