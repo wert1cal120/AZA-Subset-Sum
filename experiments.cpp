@@ -3,6 +3,8 @@
 #include <chrono>
 #include <cstdlib>
 #include <algorithm>
+#include <fstream>
+
 #include "subset_sum.hpp"
 
 
@@ -34,7 +36,7 @@ void delete_tree(NodeTree* root) {
     delete root;
 }
 
-void run_both_algorithms(int target, std::vector<int> array) {
+void run_both_algorithms(int target, std::vector<int> array, std::string test_type, int seed, std::ofstream& csv) {
     auto time_limit = std::chrono::seconds(10);
     std::vector<int> found_solution_for_report;
 
@@ -46,14 +48,18 @@ void run_both_algorithms(int target, std::vector<int> array) {
         for (int repeat = 0; repeat < 3; repeat++) {
             NodeTree* root = new NodeTree();
             NodeTree* found = nullptr;
+            std::string solution_status = "unsolved";
             int recursion_calls = 0;
             bool time_out = false;
+            char algorithm_name;
 
             auto start = std::chrono::steady_clock::now();
             if (algorithm == 0) {
+                algorithm_name = 'A';
                 subset_sum_baseline(array, root, nullptr, target, 0, 0,
                     recursion_calls, found, time_out, start + time_limit);
             } else {
+                algorithm_name = 'B';
                 std::vector<int> array_sums(array.size(), 0);
                 int sum = 0;
 
@@ -65,17 +71,24 @@ void run_both_algorithms(int target, std::vector<int> array) {
                     recursion_calls, found, time_out, start + time_limit);
             }
 
+            if (found != nullptr) {
+                solution_status = "solved";
+            }
+            
+            if (time_out) {
+                any_time_out = true;
+                solution_status = "timeout";
+            }
+
             auto elapsed = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start);
             times.push_back(elapsed.count());
+            csv << array.size() << "," << test_type << "," << algorithm_name << "," << seed << "," << solution_status << "," << recursion_calls << "," << elapsed.count() <<"\n";
 
             if (repeat == 0) {
                 recursion_calls_for_report = recursion_calls;
                 found_solution_for_report = get_solution(found);
             }
-
-            if (time_out) {
-                any_time_out = true;
-            }
+            
             delete_tree(root);
         }
 
@@ -117,6 +130,15 @@ void run_both_algorithms(int target, std::vector<int> array) {
 
 
 int main() {
+    std::ofstream csv("results.csv");
+
+    if (!csv) {
+        std::cerr << "Could not open results.csv\n";
+        return 1;
+    }
+
+    csv << "n,test,algorithm,seed,status,calls,runtime_ms\n";
+
     std::vector<int> n{10, 15, 20};
     constexpr int seed = 58111158;
     std::srand(seed);
@@ -139,71 +161,71 @@ int main() {
                 std::cout << "Fixed test:\n";
                 target = 81;
                 array = {3, 7, 11, 15, 19, 9, 21, 17, 13, 31};
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "possible", seed, csv);
 
                 //Random test
                 std::cout << "Random test:\n";
-                target = std::rand() % (100 - 1 + 1) + 1;
+                target = std::rand() % (300 - 1 + 1) + 1;
 
                 array = {};
                 for (int j = 0; j < i; j++) {
                     array.push_back(std::rand() % (100 - 1 + 1) + 1);
                 }
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "random", seed, csv);
 
                 //Fixed fail test
                 std::cout << "Fixed impossible test:\n";
                 target = 33;
                 array = {2, 6, 4, 12, 18, 8, 26, 10, 30, 22};
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "impossible", seed, csv);
                 break;
 
             case 15:
                 //Fixed test
                 std::cout << "Fixed test:\n";
-                target = 68;
+                target = 232 ;
                 array = {3, 7, 11, 15, 19, 9, 21, 17, 13, 31, 23, 27, 29, 33, 35};
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "possible", seed, csv);
 
                 //Random test
                 std::cout << "Random test:\n";
-                target = std::rand() % (100 - 1 + 1) + 1;
+                target = std::rand() % (300 - 1 + 1) + 1;
 
                 array = {};
                 for (int j = 0; j < i; j++) {
                     array.push_back(std::rand() % (100 - 1 + 1) + 1);
                 }
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "random", seed, csv);
 
                 //Fixed fail test
                 std::cout << "Fixed impossible test:\n";
                 target = 242;
                 array = {4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60};
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "impossible", seed, csv);
                 break;
 
             case 20:
                 //Fixed test
                 std::cout << "Fixed test:\n";
-                target = 90;
+                target = 389;
                 array = {3, 7, 11, 15, 19, 9, 21, 17, 13, 31, 23, 27, 29, 33, 35, 37, 39, 41, 43, 47};
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "possible", seed, csv);
 
                 //Random test
                 std::cout << "Random test:\n";
-                target = std::rand() % (100 - 1 + 1) + 1;
+                target = std::rand() % (300 - 1 + 1) + 1;
 
                 array = {};
                 for (int j = 0; j < i; j++) {
                     array.push_back(std::rand() % (100 - 1 + 1) + 1);
                 }
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "random", seed, csv);
 
                 //Fixed fail test
                 std::cout << "Fixed impossible test:\n";
                 target = 402;
                 array = {4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80};
-                run_both_algorithms(target, array);
+                run_both_algorithms(target,array, "impossible", seed, csv);
                 break;
             default:
                 break;
